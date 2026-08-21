@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#16294b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Burns Golf">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./app-icon-180.png">
 <title>Burns Club Golf GPS</title>
 <style>
 :root{
@@ -38,6 +44,11 @@ button{font:inherit}
 .sep{width:1px;height:30px;background:var(--line)}
 .status-wrap{text-align:right}
 .status{font-size:9px;color:var(--muted)}
+.install-btn{margin-top:6px;border:1px solid var(--gold);border-radius:8px;background:rgba(10,26,50,.88);color:var(--gold2);padding:6px 9px;font-size:9px;font-weight:900;letter-spacing:.04em;cursor:pointer}
+.install-help{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:18px;background:rgba(3,8,16,.72)}
+.install-help[hidden]{display:none}
+.install-card{width:min(390px,100%);border:1px solid var(--line);border-radius:16px;background:#142845;padding:20px;box-shadow:0 20px 60px #0008}
+.install-card h2{margin:0 0 8px;color:var(--gold2);font-size:21px}.install-card p{margin:0;color:#eef2f8;font-size:14px;line-height:1.45}.install-card .btn{width:100%;margin-top:16px}
 
 
 
@@ -220,6 +231,7 @@ button{font:inherit}
   </div>
   <div class="status-wrap">
    <div class="status" id="gpsStatus">GPS: waiting</div>
+   <button class="install-btn" id="installApp" type="button" hidden>Install app</button>
   </div>
  </div>
 
@@ -283,11 +295,35 @@ button{font:inherit}
  <button class="tab spotd-icon" id="spotdTab" title="Spot’d live ball finder" aria-label="Open Spot’d live ball finder"><img class="spotd-icon-img" src="./spotd_icon.png" alt="" aria-hidden="true"><span class="sr-only">Spot’d</span></button>
 </div>
 
+<div class="install-help" id="installHelp" hidden role="dialog" aria-modal="true" aria-labelledby="installTitle">
+ <div class="install-card">
+  <h2 id="installTitle">Open Burns Golf full screen</h2>
+  <p id="installText">Open your browser menu and choose Add to Home Screen or Install app. Launch it from the new Home Screen icon to remove the browser address bar.</p>
+  <button class="btn primary" id="closeInstallHelp" type="button">Got it</button>
+ </div>
+</div>
+
 <script>
 const HOLES={"1": {"front": [-35.224470438232515, 149.00055419970158], "middle": [-35.224353762454804, 149.00060583222225], "back": [-35.22425242420189, 149.0006440536986], "par": "5", "blue": 465, "red": 440, "tip": "Drive down the left for a good angle for your next shot. Longer hitters can take on the green-side bunkers for their second. A well positioned layup gets rewarded with a full view of this back-to-front sloping green.", "mapPath": "./renderedholes/Burns1.png", "greenPath": "./greens/1.png"}, "2": {"front": [-35.223108258254804, 148.99911411049567], "middle": [-35.22297405145452, 148.99911947491344], "back": [-35.22285189568416, 148.99912819209223], "par": "4", "blue": 307, "red": 287, "tip": "A well positioned tee shot short of the gully leaves a good chance of pitching close. A bogey is on the cards if you decide to attempt this green in one.", "mapPath": "./renderedholes/Burns2.png", "greenPath": "./greens/2.png"}, "3": {"front": [-35.22244904753402, 148.99830697540622], "middle": [-35.22235099362774, 148.99839079443373], "back": [-35.22226334757771, 148.99845047358136], "par": "3", "blue": 145, "red": 140, "tip": "A low to mid iron should be sufficient here, beware of going over the back of this green. A generous subtle green if hit may produce a birdie.", "mapPath": "./renderedholes/Burns3.png", "greenPath": "./greens/3.png"}, "4": {"front": [-35.21926325525212, 149.00012189006895], "middle": [-35.21914492856052, 149.00014334774], "back": [-35.21903755789479, 149.00016614651548], "par": "4", "blue": 387, "red": 363, "tip": "Again, drive it down the left-hand side of the fairway for a good angle into the green for your second shot. A medium to long iron will be required to reach this flat green. Balls missed to the right of the green may find water.", "mapPath": "./renderedholes/Burns4.png", "greenPath": "./greens/4.png"}, "5": {"front": [-35.21857936294525, 149.0018425204382], "middle": [-35.218565119806684, 149.00199339468776], "back": [-35.21857278918931, 149.00211476463963], "par": "3", "blue": 181, "red": 147, "tip": "A well positioned tee shot under the hole should see a par. However, players who land their shots beyond the hole will face a tough pitch/putt back onto this green which slopes sharply from back to front. The green is guarded by 3 bunkers.", "mapPath": "./renderedholes/Burns5.png", "greenPath": "./greens/5.png"}, "6": {"front": [-35.22150809832941, 149.00102927662928], "middle": [-35.22161272676436, 149.00095350422842], "back": [-35.221725024149194, 149.00089717784192], "par": "4", "blue": 392, "red": 320, "tip": "A drive down the left/centre of the fairway for the best angle onto the green. A controlled medium iron will be required into this long and undulating green. Players who miss their shot to the right of the green will have a difficult time getting it up-and-down for par from the gully.", "mapPath": "./renderedholes/Burns6.png", "greenPath": "./greens/6.png"}, "7": {"front": [-35.219312079701425, 149.00139669544944], "middle": [-35.21918224909482, 149.0014154709116], "back": [-35.21905625294893, 149.00147582061146], "par": "4", "blue": 305, "red": 270, "tip": "A well positioned layup should leave a short shot to the green. A pitch shot positioned on the appropriate tier could bring about a birdie or par. The green slopes from back to front and right to left.", "mapPath": "./renderedholes/Burns7.png", "greenPath": "./greens/7.png"}, "8": {"front": [-35.2232853827932, 148.9998145826339], "middle": [-35.22338507891215, 148.999811900425], "back": [-35.22348258378912, 148.99980050103724], "par": "5", "blue": 478, "red": 447, "tip": "Avoiding the two fairway bunkers is a good start. Longer hitters can take on the water hazard and reach this green. For the shorter hitters, position on the layup to the right of the water hazard. An approach shot finding the appropriate tier will be left with an easy putt on a relatively flat green.", "mapPath": "./renderedholes/Burns8.png", "greenPath": "./greens/8.png"}, "9": {"front": [-35.227400819480785, 149.00224850611693], "middle": [-35.22751529986666, 149.00225655274357], "back": [-35.22761663404475, 149.00224314169918], "par": "5", "blue": 448, "red": 380, "tip": "A drive favouring the left side of the fairway makes this hole easier. Longer hitters can get home from here with a well struck long iron or fairway wood. The approach shot should be left under the hole on this sharply sloping two-tiered green.", "mapPath": "./renderedholes/Burns9.png", "greenPath": "./greens/9.png"}, "10": {"front": [-35.22919010915574, 149.00622681801428], "middle": [-35.22921749621859, 149.0063495290706], "back": [-35.22927117483496, 149.00647022847025], "par": "4", "blue": 312, "red": 295, "tip": "A long iron or wood down the hill should leave about 120 meters to the green. A short shot to an elevated green that slopes from back to front. Balls hit over this green may find a par hard to come by.", "mapPath": "./renderedholes/Burns10.png", "greenPath": "./greens/10.png"}, "11": {"front": [-35.22621470591683, 149.00463135739722], "middle": [-35.22611172670154, 149.0046508034116], "back": [-35.2260372310175, 149.00466220279935], "par": "4", "blue": 381, "red": 260, "tip": "Drive down the left-hand side of this hole; the ball generally bounces back onto the fairway. A well struck medium to long iron will be required to this flat green. The green is guarded by bunkers and a steep slope that feeds the ball into the trees on the right.", "mapPath": "./renderedholes/Burns11.png", "greenPath": "./greens/11.png"}, "12": {"front": [-35.22286127996703, 149.0047625237392], "middle": [-35.22276267877282, 149.00471290287447], "back": [-35.22268489330274, 149.00469882127783], "par": "4", "blue": 309, "red": 286, "tip": "A tight tee shot through a narrow chute of trees. Driving onto the fairway will be rewarded with a short pitch to a receptive green. The green has a slight back to front slope.", "mapPath": "./renderedholes/Burns12.png", "greenPath": "./greens/12.png"}, "13": {"front": [-35.219122174690966, 149.00554690753287], "middle": [-35.21905534192759, 149.00559854005385], "back": [-35.218980839765855, 149.00563474987374], "par": "4", "blue": 408, "red": 329, "tip": "Again, drive down the left-hand side of the fairway. This will leave a good angle away from the trees for your second shot. A well struck medium to long iron will be required to reach this flat green.", "mapPath": "./renderedholes/Burns13.png", "greenPath": "./greens/13.png"}, "14": {"front": [-35.21896996067364, 149.00385775484358], "middle": [-35.218952978551386, 149.00373705544393], "back": [-35.218929970509144, 149.00362574377536], "par": "3", "blue": 118, "red": 118, "tip": "A short shot across water to a flat green. Club selection, especially in the wind, makes this hole play harder than its rating. Shots missed to the left or right kick away from the green making a par hard to come by.", "mapPath": "./renderedholes/Burns14.png", "greenPath": "./greens/14.png"}, "15": {"front": [-35.21877001349125, 149.00656232900647], "middle": [-35.21878370878228, 149.00667162901837], "back": [-35.218803977808754, 149.00678294068695], "par": "4", "blue": 340, "red": 315, "tip": "Drive to the top of the hill. A blind second shot makes judging the distance to the green difficult. This green slopes from back to front so position your ball under the hole.", "mapPath": "./renderedholes/Burns15.png", "greenPath": "./greens/15.png"}, "16": {"front": [-35.22228374322499, 149.00523120892683], "middle": [-35.22238508393632, 149.00521578622573], "back": [-35.22247053870806, 149.00519969297247], "par": "4/5", "blue": 385, "red": 385, "tip": "Drive down the left-hand side of the fairway for the best angle to the green. A medium to long iron will have to be struck well to hit this tiny green. The putting surface is guarded by a large bunker on the right and a smaller bunker and trees on the left.", "mapPath": "./renderedholes/Burns16.png", "greenPath": "./greens/16.png"}, "17": {"front": [-35.227136136582416, 149.00397640773656], "middle": [-35.22721556104981, 149.00399652430318], "back": [-35.227293889931175, 149.00401529976534], "par": "5", "blue": 480, "red": 465, "tip": "Drive down the left-hand side of the fairway to avoid the ball bouncing into the trees on the right. A second shot positioned halfway up the hill is an ideal place to attack this elevated but flat green. Players who miss to the right of this green will be faced with a difficult up and down.", "mapPath": "./renderedholes/Burns17.png", "greenPath": "./greens/17.png"}, "18": {"front": [-35.22805922129916, 149.00251864717256], "middle": [-35.228134262875294, 149.0024582974727], "back": [-35.22821149537386, 149.00241202936954], "par": "3", "blue": 134, "red": 134, "tip": "A shot up the hill to a small flat green. Long grass awaits any shot coming up short or right. The wind can make this hole play harder than its rating.", "mapPath": "./renderedholes/Burns18.png", "greenPath": "./greens/18.png"}};
 let currentHole=1,currentPosition=null,openPanelName=null;
 let lastWeatherFetch=0,lastWeatherLat=null,lastWeatherLon=null;
 const $=id=>document.getElementById(id);
+let deferredInstallPrompt=null;
+const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
+const installButton=$("installApp"),installHelp=$("installHelp");
+if(!standalone)installButton.hidden=false;
+window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredInstallPrompt=event;installButton.hidden=false});
+installButton.addEventListener("click",async()=>{
+ if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;return}
+ const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+ $("installText").textContent=ios
+  ?"In Safari, tap the Share button, choose Add to Home Screen, then open Burns Golf from its new icon. It will launch without the address bar."
+  :"Open your browser menu and choose Add to Home Screen or Install app. Launch Burns Golf from its new icon to remove the address bar.";
+ installHelp.hidden=false;
+});
+$("closeInstallHelp").onclick=()=>installHelp.hidden=true;
+installHelp.onclick=event=>{if(event.target===installHelp)installHelp.hidden=true};
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
 
 function toRad(d){return d*Math.PI/180}
 function distanceMetres(a,b,c,d){

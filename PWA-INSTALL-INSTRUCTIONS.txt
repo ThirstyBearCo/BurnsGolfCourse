@@ -1,0 +1,29 @@
+BURNS CLUB GOLF GPS - FULL-SCREEN WEB APP
+
+UPLOAD THESE FILES TO THE SAME HTTPS WEBSITE FOLDER:
+- index.html
+- manifest.json
+- service-worker.js
+- app-icon-180.png
+- app-icon-192.png
+- app-icon-512.png
+- spotd_icon.png
+
+KEEP YOUR EXISTING COURSE IMAGE FOLDERS BESIDE THEM:
+- renderedholes/Burns1.png through Burns18.png
+- greens/1.png through 18.png
+
+INSTALL ON IPHONE OR IPAD:
+1. Open the website in Safari.
+2. Tap Share.
+3. Tap Add to Home Screen.
+4. Open Burns Golf from the new Home Screen icon.
+
+INSTALL ON ANDROID:
+1. Open the website in Chrome.
+2. Tap Install app when offered, or open the browser menu.
+3. Choose Install app or Add to Home screen.
+4. Open Burns Golf from the new Home Screen icon.
+
+The installed version opens in standalone mode without the normal browser URL bar.
+GPS, current weather and live Spot'd sharing still require an internet connection and location permission.
